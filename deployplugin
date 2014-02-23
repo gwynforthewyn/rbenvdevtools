@@ -16,7 +16,7 @@ if [ -z ${PROGRAMMING} ]; then
   exit 2
 fi
 
-if [ -z ${RBENV_DEV_DIR} ]; then
+if [ -d ${RBENV_DEV_DIR} ]; then
   echo "${RBENV_DEV_DIR} isn't a valid directory."
   exit 3
 fi
