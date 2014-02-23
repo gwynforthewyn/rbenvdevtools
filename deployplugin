@@ -2,7 +2,7 @@
 
 PLUGIN=$1
 RBENV_PLUGIN_NAME=rbenv-${PLUGIN}
-RBENV_DEV_DIR=${PROGRAMMING}/rbenv
+
 RBENV_DEV_PLUGIN_DIR=${RBENV_DEV_DIR}/${PLUGIN}
 RBENV_DESTINATION_DIR=${HOME}/.rbenv/plugins/${RBENV_PLUGIN_NAME}
 
@@ -11,8 +11,8 @@ if [ -z ${PLUGIN} ]; then
   exit 1
 fi
 
-if [ -z ${PROGRAMMING} ]; then
-  echo "Please set an env variable PROGRAMMING pointing to programming dir."
+if [ -z ${RBENV_DEV_DIR} ]; then
+  echo "Please set an env variable RBENV_DEV_DIR pointing to programming dir."
   exit 2
 fi
 
