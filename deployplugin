@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+PLUGIN=$1
+RBENV_PLUGIN_NAME=rbenv-${PLUGIN}
+RBENV_DEV_DIR=${PROGRAMMING}/rbenv
+RBENV_DEV_PLUGIN_DIR=${RBENV_DEV_DIR}/${PLUGIN}
+RBENV_DESTINATION_DIR=${HOME}/.rbenv/plugins/${RBENV_PLUGIN_NAME}
+
+if [ -z ${PLUGIN} ]; then
+  echo "Usage: ${0} pluginname"
+  exit 1
+fi
+
+if [ -z ${PROGRAMMING} ]; then
+  echo "Please set an env variable PROGRAMMING pointing to programming dir."
+  exit 2
+fi
+
+if [ -z ${RBENV_DEV_DIR} ]; then
+  echo "${RBENV_DEV_DIR} isn't a valid directory."
+  exit 3
+fi
+
+rsync -av ${RBENV_DEV_PLUGIN_DIR}/ ${RBENV_DESTINATION_DIR}
+chmod +x $RBENV_DESTINATION_DIR/bin/${RBENV_PLUGIN_NAME}
