@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-LIBRARY_NAME=`basename $0`
-
-function excecute_command_and_restore_directory() {
+function execute_command_and_restore_directory() {
   COMMANDS=$*
 
   pushd . > /dev/null
