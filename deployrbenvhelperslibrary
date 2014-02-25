@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PATH_TO_RBENVHELPERS="${RBENV_DEV_DIR}/rbenvhelpers"
+PATH_TO_RBENVHELPERS="${RBENV_DEV_DIR}/rbenvdevtools/rbenvhelpers"
 
 if [ ! ${RBENV_DEV_DIR} ]; then
   echo "Please set RBENV_DEV_DIR in accordance with the README file for rbenvhelpers" >&2
