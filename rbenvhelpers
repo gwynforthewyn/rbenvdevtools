@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+UNDERLINE=`tput smul`
+NOUNDERLINE=`tput rmul`
+
 function execute_command_and_restore_directory() {
   COMMANDS=$*
 
