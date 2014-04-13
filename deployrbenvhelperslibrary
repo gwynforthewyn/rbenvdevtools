@@ -13,9 +13,19 @@ function check_if_git_repository() {
   return 0
 }
 
+function push_git_repostory() {
+  CANDIDATE_GIT_REPO=$1
+  pushd $CANDIDATE_GIT_REPO > /dev/null 2>&1 
+    echo ">pushing ${CANDIDATE_GIT_REPO}"
+    git fetch
+    git push
+  popd > /dev/null 2>&1   
+}
+
 #Runs a fetch and an update. It'd be nice if it also checked if there were other
 #files that want to be updated, bailing if there are.
 function update_git_repostory() {
+  CANDIDATE_GIT_REPO=$1
   pushd $CANDIDATE_GIT_REPO > /dev/null 2>&1 
     echo ">updating ${CANDIDATE_GIT_REPO}"
     git fetch
@@ -28,18 +38,24 @@ function usage() {
   THIS_FILE=`basename $0`
   echo -e "${THIS_FILE} \t--Deploys rbenvhelpers library to each plugin directory in \${RBENV_DEV_DIR}" >&2
   echo -e "${THIS_FILE} -u \t--Deploys rbenvhelpers library to each plugin directory and attempts to git commit" >&2
+  echo -e "${THIS_FILE} -p \t--In addition to adding rbenvhelpers library, also push it. Implies -u" >&2
   exit 1
 }
 
+PUSH_TO_REPOSITORY=false
 UPDATE_GIT_REPOSITORY=false
 
-while getopts "uh" opt; do
+while getopts "uhp" opt; do
   case $opt in
     h)
       usage
       ;;
     u)
       UPDATE_GIT_REPOSITORY=true >&2
+      ;;
+    p)
+      UPDATE_GIT_REPOSITORY=true >&2
+      PUSH_TO_REPOSITORY=true >&2
       ;;
     \?)
       echo "Invalid option handed in. Usage:" >&2
@@ -68,9 +84,13 @@ for LIB_DIR in `find ${RBENV_DEV_DIR} -type d -depth 2 | grep lib`; do
     else
 
       if [ ! -f "${PATH_TO_LIB}" ]; then
-        echo -e ">>>${PATH_TO_LIB} does not appear to a file. Skipping..." >&2
+        echo -e ">>>${PATH_TO_LIB} does not appear to be a file. Skipping..." >&2
       else
-        update_git_repostory
+        update_git_repostory $CANDIDATE_GIT_REPO
+      fi
+
+      if ($PUSH_TO_REPOSITORY); then
+        push_git_repostory $CANDIDATE_GIT_REPO
       fi
 
     fi
