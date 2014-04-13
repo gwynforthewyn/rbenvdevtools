@@ -2,6 +2,7 @@
 
 UNDERLINE=`tput smul`
 NOUNDERLINE=`tput rmul`
+MY_RBENV_ROOT=`rbenv root`
 
 function execute_command_and_restore_directory() {
   COMMANDS=$*
