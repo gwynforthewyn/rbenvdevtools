@@ -12,6 +12,13 @@ function execute_command_and_restore_directory() {
   popd > /dev/null
 }
 
+#Returns 0 if bundler exists.
+#Returns 1 if bundler does not exist.
+function bundler_exists() {
+  `gem which bundler > /dev/null 2>&1`
+  return $?
+}
+
 function update_git_repository() {
   GIT_REPOSITORY=$1
 
