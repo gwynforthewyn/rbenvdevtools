@@ -1,6 +1,53 @@
 #!/usr/bin/env bash
 
-PATH_TO_RBENVHELPERS="${RBENV_DEV_DIR}/rbenvdevtools/rbenvhelpers"
+LIB_NAME="rbenvhelpers"
+PATH_TO_RBENVHELPERS="${RBENV_DEV_DIR}/rbenvdevtools/${LIB_NAME}"
+
+function check_if_git_repository() {
+  CANDIDATE_DIR=$1
+
+  if [ ! -d "${CANDIDATE_DIR}/.git" ]; then
+    return 1
+  fi
+
+  return 0
+}
+
+#Runs a fetch and an update. It'd be nice if it also checked if there were other
+#files that want to be updated, bailing if there are.
+function update_git_repostory() {
+  pushd $CANDIDATE_GIT_REPO > /dev/null 2>&1 
+    echo ">updating ${CANDIDATE_GIT_REPO}"
+    git fetch
+    git add "lib/rbenvhelpers"
+    git commit -m "Updating ${PATH_TO_LIB}"
+  popd > /dev/null 2>&1   
+}
+
+function usage() {
+  THIS_FILE=`basename $0`
+  echo -e "${THIS_FILE} \t--Deploys rbenvhelpers library to each plugin directory in \${RBENV_DEV_DIR}" >&2
+  echo -e "${THIS_FILE} -u \t--Deploys rbenvhelpers library to each plugin directory and attempts to git commit" >&2
+  exit 1
+}
+
+UPDATE_GIT_REPOSITORY=false
+
+while getopts "uh" opt; do
+  case $opt in
+    h)
+      usage
+      ;;
+    u)
+      UPDATE_GIT_REPOSITORY=true >&2
+      ;;
+    \?)
+      echo "Invalid option handed in. Usage:" >&2
+      usage
+      ;;
+  esac
+done
+
 
 if [ ! ${RBENV_DEV_DIR} ]; then
   echo "Please set RBENV_DEV_DIR in accordance with the README file for rbenvhelpers" >&2
@@ -8,6 +55,25 @@ if [ ! ${RBENV_DEV_DIR} ]; then
 fi
 
 for LIB_DIR in `find ${RBENV_DEV_DIR} -type d -depth 2 | grep lib`; do
+  CANDIDATE_GIT_REPO=`dirname ${LIB_DIR}`
+  PATH_TO_LIB="${LIB_DIR}/${LIB_NAME}"
+
   echo ">Copying ${PATH_TO_RBENVHELPERS} to ${LIB_DIR}"
-  cp ${PATH_TO_RBENVHELPERS} ${LIB_DIR}
+  cp ${PATH_TO_RBENVHELPERS} ${LIB_DIR} > /dev/null 2>&1 
+
+  if ($UPDATE_GIT_REPOSITORY); then
+    check_if_git_repository $CANDIDATE_GIT_REPO
+    if [ $? != 0 ]; then
+      echo -e ">>${CANDIDATE_GIT_REPO} does not appear to be a git repository. Skipping..." >&2
+    else
+
+      if [ ! -f "${PATH_TO_LIB}" ]; then
+        echo -e ">>>${PATH_TO_LIB} does not appear to a file. Skipping..." >&2
+      else
+        update_git_repostory
+      fi
+
+    fi
+  fi
 done
+
