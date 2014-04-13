@@ -5,8 +5,13 @@ RBENV_PLUGIN_NAME=rbenv-${PLUGIN}
 RBENV_DEV_PLUGIN_DIR=${RBENV_DEV_DIR}/${PLUGIN}
 RBENV_DESTINATION_DIR=${HOME}/.rbenv/plugins/${RBENV_PLUGIN_NAME}
 
+UNDERLINE=`tput smul`
+NOUNDERLINE=`tput rmul`
+
 if [ -z ${PLUGIN} ]; then
-  echo "Usage: ${0} pluginname"
+  echo -e "Usage: ${0} ${UNDERLINE}pluginname${NOUNDERLINE}"
+  echo -e "This script will deply ${UNDERLINE}pluginname${NOUNDERLINE} to \${RBENV_DESTINATION_DIR}."
+  echo -e "This is typically \${HOME}/.rbenv/plugins/${UNDERLINE}pluginname${NOUNDERLINE}."
   exit 1
 fi
 
