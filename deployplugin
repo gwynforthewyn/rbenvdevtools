@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-PLUGIN=$1
 RBENV_PLUGIN_NAME=rbenv-${PLUGIN}
 RBENV_DEV_PLUGIN_DIR=${RBENV_DEV_DIR}/${PLUGIN}
 RBENV_DESTINATION_DIR=${HOME}/.rbenv/plugins/${RBENV_PLUGIN_NAME}
@@ -8,12 +7,29 @@ RBENV_DESTINATION_DIR=${HOME}/.rbenv/plugins/${RBENV_PLUGIN_NAME}
 UNDERLINE=`tput smul`
 NOUNDERLINE=`tput rmul`
 
-if [ -z ${PLUGIN} ]; then
-  echo -e "Usage: ${0} ${UNDERLINE}pluginname${NOUNDERLINE}"
-  echo -e "This script will deply ${UNDERLINE}pluginname${NOUNDERLINE} to \${RBENV_DESTINATION_DIR}."
-  echo -e "This is typically \${HOME}/.rbenv/plugins/${UNDERLINE}pluginname${NOUNDERLINE}."
+MY_RBENV_ROOT=`rbenv root`
+MY_RBENV_PLUGIN_DIR=${MY_RBENV_ROOT}/plugins
+
+RSYNC_DEPLOY=false
+GIT_DEPLOY=false
+
+function check_directory() {
+  DIRECTORY=$1
+
+  if [ ! -d $DIRECTORY ]; then
+    echo "${DIRECTORY} is not a directory."
+    exit 4
+  fi 
+}
+function usage() {
+  THIS_FILE=`basename ${0}`
+  echo "Usage: ${THIS_FILE} ${UNDERLINE}pluginname${NOUNDERLINE}"
+  echo -e "${THIS_FILE} -r \twill deploy ${UNDERLINE}pluginname${NOUNDERLINE} to \${RBENV_DESTINATION_DIR} via rsync."
+  echo -e "\t\t\tThis is ${MY_RBENV_PLUGIN_DIR}/${UNDERLINE}pluginname${NOUNDERLINE}."
+  echo -e "${THIS_FILE} -g \twill deploy ${UNDERLINE}pluginname${NOUNDERLINE} by cding into the plugin's rbenv plugin dir "
+  echo -e "\t\t\trepository and running git pull."
   exit 1
-fi
+}
 
 if [ -z ${RBENV_DEV_DIR} ]; then
   echo "Please set an env variable RBENV_DEV_DIR pointing to programming dir."
@@ -25,5 +41,46 @@ if [ ! -d ${RBENV_DEV_DIR} ]; then
   exit 3
 fi
 
-rsync -av ${RBENV_DEV_PLUGIN_DIR}/ ${RBENV_DESTINATION_DIR}
-chmod +x $RBENV_DESTINATION_DIR/bin/${RBENV_PLUGIN_NAME}
+while getopts "ghp:r" opt; do
+  case $opt in
+    h)
+      usage
+      ;;
+    g)
+      GIT_DEPLOY=true >&2
+      ;;
+    r)
+      RSYNC_DEPLOY=true >&2
+      ;;
+    \?)
+      echo "Invalid option handed in." >&2
+      usage
+      ;;
+  esac
+done
+
+PLUGIN=${@:$OPTIND}
+
+if [ -z ${PLUGIN} ]; then
+  usage
+fi
+
+RBENV_PLUGIN_NAME=rbenv-${PLUGIN}
+RBENV_DEV_PLUGIN_DIR=${RBENV_DEV_DIR}/${PLUGIN}
+RBENV_DESTINATION_DIR=${MY_RBENV_PLUGIN_DIR}/${RBENV_PLUGIN_NAME}
+
+if (${RSYNC_DEPLOY}); then
+  check_directory $RBENV_DEV_PLUGIN_DIR
+  check_directory $RBENV_DESTINATION_DIR
+
+  rsync -av ${RBENV_DEV_PLUGIN_DIR}/ ${RBENV_DESTINATION_DIR}
+  chmod +x $RBENV_DESTINATION_DIR/bin/${RBENV_PLUGIN_NAME}
+fi
+
+if (${GIT_DEPLOY}); then
+  check_directory $RBENV_DESTINATION_DIR
+
+  pushd ${RBENV_DESTINATION_DIR} > /dev/null 2>&1
+    git pull
+  popd > /dev/null 2>&1
+fi
