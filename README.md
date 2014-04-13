@@ -22,7 +22,11 @@ deployplugin <arg>
 Arg is the name of a directory in the $RBENV_DEV_DIR. This directory will be deployed to 
 $RBENV_ROOT/plugins/.
 
+<code>deployplugin -h</code> for all options
+
 ### deployrbenvhelper
 
 This script deploys the rbenvhelper library into the $RBENV_DEV_DIR/*/lib/ directory for any
 directory inside $RBENV_DEV_DIR
+
+<code>deployrbenvhelper</code> for all options
