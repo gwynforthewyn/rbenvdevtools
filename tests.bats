@@ -54,7 +54,7 @@ source "./rbenvhelpers"
 
 @test "bundler line can be constructed from simple gem name" {
   test_gem_name="mini_portfile-0.5.2"
-  desired_result="gem 'mini_portfile', ~> '0.5.2'"
+  desired_result="gem 'mini_portfile', '~> 0.5.2'"
 
   run build_bundler_line $test_gem_name
   echo $output
@@ -66,7 +66,7 @@ source "./rbenvhelpers"
 
 @test "bundler line can be constructed from simple gem name" {
   test_gem_name="debugger-linecache-1.2.0"
-  desired_result="gem 'debugger-linecache', ~> '1.2.0'"
+  desired_result="gem 'debugger-linecache', '~> 1.2.0'"
 
   run build_bundler_line $test_gem_name
   echo $output
